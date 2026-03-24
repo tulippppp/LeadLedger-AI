@@ -1,51 +1,83 @@
 const hre = require("hardhat");
 
-// ── Fill in your deployed contract addresses ──────────────────────────────
-const SIMPLE_STORAGE_ADDRESS = ""; // e.g. "0xAbc123..."
-const TOKEN_ADDRESS = "";          // e.g. "0xDef456..."
+function hashText(value) {
+  return hre.ethers.keccak256(hre.ethers.toUtf8Bytes(value));
+}
+
+function buildDemoInputs() {
+  const batchHash = hashText(`demo-batch:${Date.now()}`);
+
+  return [
+    {
+      leadId: "LD-201",
+      company: "DriftOps",
+      contactName: "Taylor Brooks",
+      classification: "Hot",
+      assignedQueue: "Founder Desk",
+      actionLabel: "Schedule founder demo within 30 minutes",
+      leadHash: hashText("lead:LD-201"),
+      decisionHash: hashText("decision:LD-201"),
+      batchHash,
+      confidenceBps: 9300,
+      manualSecondsSaved: 540,
+      modelVersion: "LeadLedger-KNN-v1.4",
+    },
+    {
+      leadId: "LD-202",
+      company: "CareLoop",
+      contactName: "Jordan Silva",
+      classification: "Warm",
+      assignedQueue: "SDR Pod",
+      actionLabel: "Send tailored ROI deck and book an SDR call",
+      leadHash: hashText("lead:LD-202"),
+      decisionHash: hashText("decision:LD-202"),
+      batchHash,
+      confidenceBps: 7900,
+      manualSecondsSaved: 360,
+      modelVersion: "LeadLedger-KNN-v1.4",
+    },
+  ];
+}
 
 async function main() {
-  if (!SIMPLE_STORAGE_ADDRESS || !TOKEN_ADDRESS) {
-    console.error("Set SIMPLE_STORAGE_ADDRESS and TOKEN_ADDRESS in this script first.");
+  const address = process.env.LEAD_LEDGER_ADDRESS;
+  if (!address) {
+    console.error("Set LEAD_LEDGER_ADDRESS in your .env file first.");
     process.exit(1);
   }
 
   const [signer] = await hre.ethers.getSigners();
+  const ledger = await hre.ethers.getContractAt("LeadAutomationLedger", address, signer);
+
   console.log(`Using account: ${signer.address}`);
+  console.log(`Ledger:        ${address}`);
 
-  // ── Interact with SimpleStorage ──────────────────────────────────────────
-  console.log("\n── SimpleStorage ──────────────────────────────────");
-  const SimpleStorage = await hre.ethers.getContractFactory("SimpleStorage");
-  const storage = SimpleStorage.attach(SIMPLE_STORAGE_ADDRESS);
+  if (process.env.LOG_DEMO === "true") {
+    console.log("\nLogging demo automation batch...");
+    const tx = await ledger.logBatch(buildDemoInputs());
+    console.log(`  Submitted: ${tx.hash}`);
+    await tx.wait();
+    console.log("  Confirmed.");
+  }
 
-  const currentValue = await storage.value();
-  console.log(`Current value: ${currentValue}`);
+  const [decisionCount, manualSecondsSaved, paused] = await ledger.getDashboardTotals();
+  console.log("\n── Lead Ledger Snapshot ─────────────────────────");
+  console.log(`Decisions logged: ${decisionCount}`);
+  console.log(`Time saved:       ${(Number(manualSecondsSaved) / 60).toFixed(1)} minutes`);
+  console.log(`Paused:           ${paused}`);
 
-  console.log("Setting value to 100...");
-  const tx1 = await storage.setValue(100);
-  await tx1.wait();
-  console.log(`New value: ${await storage.value()}`);
+  if (decisionCount > 0n) {
+    const latestCount = Number(decisionCount > 3n ? 3n : decisionCount);
+    const latestIds = await ledger.getLatestDecisionIds(latestCount);
+    console.log("\nLatest decisions:");
 
-  // ── Interact with ShardeumToken ──────────────────────────────────────────
-  console.log("\n── ShardeumToken ──────────────────────────────────");
-  const ShardeumToken = await hre.ethers.getContractFactory("ShardeumToken");
-  const token = ShardeumToken.attach(TOKEN_ADDRESS);
-
-  const name = await token.name();
-  const symbol = await token.symbol();
-  const totalSupply = await token.totalSupply();
-  const myBalance = await token.balanceOf(signer.address);
-
-  console.log(`Token: ${name} (${symbol})`);
-  console.log(`Total Supply: ${hre.ethers.formatEther(totalSupply)} ${symbol}`);
-  console.log(`My Balance:   ${hre.ethers.formatEther(myBalance)} ${symbol}`);
-
-  // Transfer 100 tokens to a burn address as a demo
-  const recipient = "0x000000000000000000000000000000000000dEaD";
-  console.log(`\nTransferring 100 ${symbol} to ${recipient}...`);
-  const tx2 = await token.transfer(recipient, hre.ethers.parseEther("100"));
-  await tx2.wait();
-  console.log(`Transfer complete. New balance: ${hre.ethers.formatEther(await token.balanceOf(signer.address))} ${symbol}`);
+    for (const id of latestIds) {
+      const record = await ledger.getDecision(id);
+      console.log(
+        `  #${record.id} ${record.company} -> ${record.classification} | ${record.assignedQueue} | ${Number(record.confidenceBps) / 100}%`
+      );
+    }
+  }
 }
 
 main().catch((error) => {

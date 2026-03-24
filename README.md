@@ -1,100 +1,205 @@
-# Shardeum Starter Kit
+# LeadLedger AI
 
-Get your environment ready to build and deploy smart contracts on **Shardeum** — an EVM-compatible Layer 1 blockchain.
+LeadLedger AI is a lightweight startup operations copilot that automates one of the most repetitive early-stage workflows: inbound lead triage.
 
----
+It classifies leads, prioritizes follow-up, drafts the first response, estimates time saved, and anchors every automated decision to the **Shardeum** blockchain for transparency, traceability, and tamper-resistant auditability.
 
-## Step 1 — Install Prerequisites
+## Why this can win
 
-Make sure you have the following installed:
+- **Real startup pain point:** founders and small GTM teams lose hours every week manually sorting inbound leads.
+- **Explainable AI/ML:** a lightweight KNN-style scoring engine turns lead text + metadata into transparent Hot/Warm/Cold decisions.
+- **Strong blockchain fit:** every automation output is logged on-chain as an auditable decision record with hashes, confidence, and batch provenance.
+- **High demo value:** polished UI, measurable time-saved metrics, visible reasoning, and Shardeum explorer links.
 
-- [Node.js](https://nodejs.org/) (v18 or v20 recommended)
-- [Git](https://git-scm.com/)
-- [MetaMask](https://metamask.io/) browser extension
+## What the product does
 
----
+LeadLedger AI automates a simple but high-value startup task:
 
-## Step 2 — Add Shardeum Testnet to MetaMask
+1. Read inbound lead messages from a demo lead inbox.
+2. Extract intent, urgency, authority, budget, fit, and source signals.
+3. Score and classify each lead as `Hot`, `Warm`, or `Cold`.
+4. Recommend the best queue and next action.
+5. Generate a ready-to-send reply draft.
+6. Log the decision batch on **Shardeum** with hashes and model metadata.
 
-**Option A — Add automatically via the docs (easiest):**
+## Core features
 
-Go to [https://docs.shardeum.org/docs/overview/endpoints](https://docs.shardeum.org/docs/overview/endpoints) and click **"Add to Wallet"** next to the testnet.
+- Wallet-connected Shardeum dashboard
+- AI lead scoring with explainable feature traces
+- Batch automation for multiple inbound leads
+- Confidence scoring and priority routing
+- Suggested outreach copy for each lead
+- On-chain decision logging via `LeadAutomationLedger`
+- Audit timeline with transaction hashes and explorer links
+- Time-saved analytics for hackathon storytelling
 
-**Option B — Add manually in MetaMask:**
+## Project structure
 
-1. Open MetaMask → click the network dropdown → **"Add a custom network"**
-2. Fill in the details below and click **Save**
-
-| Field | Value |
-|---|---|
-| Network Name | `Shardeum EVM Testnet` |
-| New RPC URL | `https://api-mezame.shardeum.org` |
-| Chain ID | `8119` |
-| Currency Symbol | `SHM` |
-| Block Explorer URL | `https://explorer-mezame.shardeum.org` |
-
----
-
-## Step 3 — Get Testnet SHM (Faucet)
-
-You need testnet SHM to pay for gas fees.
-
-1. Join the Shardeum Discord: [https://discord.com/invite/shardeum](https://discord.com/invite/shardeum)
-2. Verify your account by clicking the **Shardeum emoji logo** in the server
-3. Go to the `#evm-faucet` channel: [https://discord.com/channels/933959587462254612/1423751569454661632](https://discord.com/channels/933959587462254612/1423751569454661632)
-4. Type the following command (a black box with your address will appear after you type `/faucet`):
-
+```text
+contracts/
+  LeadAutomationLedger.sol
+scripts/
+  deploy.js
+  interact.js
+frontend/
+  index.html
+  styles.css
+  app.js
+test/
+  LeadAutomationLedger.test.js
 ```
-/faucet [address: YOUR_METAMASK_WALLET_ADDRESS]
-```
 
-SHM will be sent to your wallet shortly after.
+## Smart contract design
 
----
+`LeadAutomationLedger` stores:
 
-## Step 4 — Set Up the Project
+- lead id
+- company + contact
+- classification
+- assigned queue
+- action label
+- lead hash
+- decision hash
+- batch hash
+- confidence score
+- manual seconds saved
+- model version
+- wallet address that anchored the decision
+- timestamp
+
+It also maintains running totals for:
+
+- total decisions logged
+- total manual time saved
+
+## AI/ML approach
+
+This MVP uses a lightweight and explainable AI workflow suitable for a hackathon MVP:
+
+- feature extraction from lead text and metadata
+- KNN-style similarity scoring against known lead profiles
+- weighted confidence estimation
+- rule-backed next-action recommendation
+- deterministic response drafting for reproducible outputs
+
+This keeps the system:
+
+- transparent
+- fast
+- offline-friendly
+- easy to demo live
+
+## Shardeum integration
+
+The contract is configured for the current starter-kit defaults:
+
+- **Shardeum testnet RPC:** `https://api-mezame.shardeum.org`
+- **Chain ID:** `8119`
+- **Explorer:** `https://explorer-mezame.shardeum.org`
+
+The dashboard supports:
+
+- connect wallet
+- add/switch to Shardeum testnet
+- paste deployed contract address
+- log a processed batch on-chain
+- inspect transaction links and ledger totals
+
+## Local setup
+
+### 1. Install dependencies
 
 ```bash
-# Install dependencies
-npm install
+npm install --cache ./.npm-cache
+```
 
-# Copy the environment file
+### 2. Create environment file
+
+```bash
 cp .env.example .env
 ```
 
-Open `.env` and add your wallet private key:
-
-```
-PRIVATE_KEY=your_private_key_here
-```
-
-> **How to export your private key from MetaMask:**
-> MetaMask → Account Details → **"Show private key"** → enter your password → copy the key
-
-> **Never share your private key with anyone.**
-
----
-
-## Step 5 — Compile & Deploy
+Then add:
 
 ```bash
-# Compile the contracts
-npm run compile
+PRIVATE_KEY=your_wallet_private_key
+```
 
-# Deploy to Shardeum testnet
+### 3. Compile
+
+```bash
+npm run compile
+```
+
+### 4. Run tests
+
+```bash
+npm test
+```
+
+### 5. Deploy to Shardeum testnet
+
+```bash
 npm run deploy
 ```
 
-If successful, you'll see your contract addresses and links to the block explorer printed in the terminal.
+After deploy, copy the printed contract address.
 
----
+### 6. Open the frontend
 
-## Useful Links
+```bash
+npm run serve:frontend
+```
 
-| Resource | Link |
-|---|---|
-| Shardeum Docs | https://docs.shardeum.org |
-| Testnet Explorer | https://explorer-mezame.shardeum.org |
-| Faucet (Discord) | https://discord.com/channels/933959587462254612/1423751569454661632 |
-| Shardeum Discord | https://discord.com/invite/shardeum |
-| Hardhat Docs | https://hardhat.org/docs |
+Then visit [http://localhost:8080](http://localhost:8080).
+
+## Optional CLI interaction
+
+Read contract totals:
+
+```bash
+LEAD_LEDGER_ADDRESS=0xYourContractAddress npm run interact
+```
+
+Log a demo batch from the CLI:
+
+```bash
+LEAD_LEDGER_ADDRESS=0xYourContractAddress LOG_DEMO=true npm run interact
+```
+
+## Demo script for judges
+
+1. Open the dashboard and show the inbound lead queue.
+2. Click **Process Demo Leads**.
+3. Highlight the AI explanation, priority routing, and drafted replies.
+4. Show the time-saved metric and Hot lead surfacing.
+5. Connect MetaMask to Shardeum testnet.
+6. Paste the deployed contract address.
+7. Click **Anchor Batch On-chain**.
+8. Open the Shardeum explorer transaction to prove auditability.
+9. Show the on-chain totals updating in the dashboard.
+
+## Judging criteria mapping
+
+### Full Stack Development
+
+- production-style smart contract
+- polished dashboard UX
+- wallet connection flow
+- local interaction scripts and tests
+
+### Blockchain Integration
+
+- meaningful Shardeum usage, not just token minting
+- immutable automation audit trail
+- batch logging, hashes, provenance, and explorer verification
+
+### Innovation & Impact
+
+- clear startup use case with immediate ROI
+- transparent AI decisions instead of black-box output
+- measurable time savings and operational accountability
+
+## Suggested pitch line
+
+> "LeadLedger AI turns every inbound startup lead into an explainable decision in seconds, then proves that decision on Shardeum."

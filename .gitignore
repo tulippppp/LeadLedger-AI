@@ -1,4 +1,7 @@
 node_modules/
+.npm-cache/
+.solc-build/
+Library/
 .env
 artifacts/
 cache/

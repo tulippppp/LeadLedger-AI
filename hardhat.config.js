@@ -1,12 +1,29 @@
 require("dotenv").config();
 require("@nomicfoundation/hardhat-toolbox");
+const { subtask } = require("hardhat/config");
+const { TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD } = require("hardhat/builtin-tasks/task-names");
+
+subtask(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD).setAction(async (args, _hre, runSuper) => {
+  const compilerVersion = require("solc/package.json").version;
+
+  if (args.solcVersion !== compilerVersion) {
+    return runSuper(args);
+  }
+
+  return {
+    compilerPath: require.resolve("solc/soljson.js"),
+    isSolcJs: true,
+    version: compilerVersion,
+    longVersion: compilerVersion,
+  };
+});
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "0x0000000000000000000000000000000000000000000000000000000000000001";
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
-    version: "0.8.20",
+    version: "0.8.26",
     settings: {
       optimizer: {
         enabled: true,

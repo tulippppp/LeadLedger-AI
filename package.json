@@ -1,7 +1,7 @@
 {
-  "name": "shardeum-starter-kit",
+  "name": "leadledger-ai",
   "version": "1.0.0",
-  "description": "Starter kit for building smart contracts on Shardeum blockchain",
+  "description": "AI-powered startup lead automation with Shardeum audit logging",
   "scripts": {
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
@@ -12,7 +12,8 @@
     "interact:testnet": "npx hardhat run scripts/interact.js --network shardeum_testnet",
     "interact:mainnet": "npx hardhat run scripts/interact.js --network shardeum_mainnet",
     "console": "npx hardhat console --network shardeum_testnet",
-    "console:testnet": "npx hardhat console --network shardeum_testnet"
+    "console:testnet": "npx hardhat console --network shardeum_testnet",
+    "serve:frontend": "python3 -m http.server 8080 -d frontend"
   },
   "devDependencies": {
     "hardhat": "^2.22.0",
