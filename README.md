@@ -4,7 +4,7 @@ LeadLedger AI is a lightweight startup operations copilot that automates one of 
 
 It classifies leads, prioritizes follow-up, drafts the first response, estimates time saved, and anchors every automated decision to the **Shardeum** blockchain for transparency, traceability, and tamper-resistant auditability.
 
-## Why this can win
+
 
 - **Real startup pain point:** founders and small GTM teams lose hours every week manually sorting inbound leads.
 - **Explainable AI/ML:** a lightweight KNN-style scoring engine turns lead text + metadata into transparent Hot/Warm/Cold decisions.
@@ -200,6 +200,5 @@ LEAD_LEDGER_ADDRESS=0xYourContractAddress LOG_DEMO=true npm run interact
 - transparent AI decisions instead of black-box output
 - measurable time savings and operational accountability
 
-## Suggested pitch line
 
 > "LeadLedger AI turns every inbound startup lead into an explainable decision in seconds, then proves that decision on Shardeum."
